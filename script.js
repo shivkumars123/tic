@@ -20,4 +20,60 @@ const winningConditions = [
 ];
 
 function handleCellClick(e) {
-  const cellIndex = e.target
+  const cellIndex = e.target.getAttribute('data-index');
+
+  if (board[cellIndex] === '' && isGameActive) {
+    board[cellIndex] = currentPlayer;
+    e.target.textContent = currentPlayer;
+    checkForWinner();
+    togglePlayer();
+  }
+}
+
+function togglePlayer() {
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  updateStatus();
+}
+
+function updateStatus() {
+  statusText.textContent = `Player ${currentPlayer}'s turn`;
+}
+
+function checkForWinner() {
+  let gameWon = false;
+
+  for (let condition of winningConditions) {
+    const [a, b, c] = condition;
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      gameWon = true;
+      break;
+    }
+  }
+
+  if (gameWon) {
+    showResult(`Player ${currentPlayer} wins!`);
+    isGameActive = false;
+  } else if (!board.includes('')) {
+    showResult(`It's a draw!`);
+    isGameActive = false;
+  }
+}
+
+function showResult(message) {
+  resultText.textContent = message;
+  resultModal.style.display = 'flex';
+}
+
+function restartGame() {
+  board = ['', '', '', '', '', '', '', '', ''];
+  cells.forEach(cell => cell.textContent = '');
+  currentPlayer = 'X';
+  isGameActive = true;
+  updateStatus();
+  resultModal.style.display = 'none';
+}
+
+cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+restartBtn.addEventListener('click', restartGame);
+newGameBtn.addEventListener('click', restartGame);
+updateStatus();
